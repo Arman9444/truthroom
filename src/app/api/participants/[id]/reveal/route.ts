@@ -42,6 +42,7 @@ export async function POST(
 
     // Verify the participant ID matches the session user
     if (participant.id !== participantId) {
+      console.error("Reveal mismatch:", { sessionParticipant: participant.id, requestedId: participantId });
       return NextResponse.json(
         { error: "Can only reveal your own identity" },
         { status: 403 }

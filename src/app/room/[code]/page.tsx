@@ -273,7 +273,10 @@ export default function RoomPage({ params }: PageProps) {
       full?: string
     ) => {
       try {
-        const res = await fetch(`/api/participants/${currentParticipant?.id}/reveal`, {
+        if (!currentParticipant?.id) {
+          throw new Error("No participant session found. Try refreshing the page.");
+        }
+        const res = await fetch(`/api/participants/${currentParticipant.id}/reveal`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ level, hint, partial, full, roomCode: code }),
