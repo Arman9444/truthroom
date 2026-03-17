@@ -1,0 +1,105 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model Room {
+  id              String    @id @default(cuid())
+  code            String    @unique
+  name            String
+  topic           String?
+  createdAt       DateTime  @default(now())
+  expiresAt       DateTime?
+  isActive        Boolean   @default(true)
+
+  maxParticipants Int       @default(20)
+  allowReveal     Boolean   @default(true)
+  allowReplies    Boolean   @default(true)
+  isEphemeral     Boolean   @default(false)
+  slowMode        Int       @default(0)
+  contentWarning  String?
+
+  flagThreshold    Int      @default(3)
+  requireAgreement Boolean  @default(true)
+
+  participants Participant[]
+  messages     Message[]
+  creatorToken String
+}
+
+model Participant {
+  id           String   @id @default(cuid())
+  roomId       String
+  room         Room     @relation(fields: [roomId], references: [id], onDelete: Cascade)
+  sessionToken String   @unique
+  alias        String
+  mask         String
+  joinedAt     DateTime @default(now())
+  isActive     Boolean  @default(true)
+
+  revealLevel   Int     @default(0)
+  revealHint    String?
+  revealPartial String?
+  revealFull    String?
+
+  trustScore    Float   @default(1.0)
+  flagsReceived Int     @default(0)
+  flagsGiven    Int     @default(0)
+
+  messages  Message[]
+  flags     Flag[]
+  reactions Reaction[]
+
+  @@index([roomId])
+}
+
+model Message {
+  id            String   @id @default(cuid())
+  roomId        String
+  room          Room     @relation(fields: [roomId], references: [id], onDelete: Cascade)
+  participantId String
+  participant   Participant @relation(fields: [participantId], references: [id], onDelete: Cascade)
+  text          String
+  createdAt     DateTime @default(now())
+
+  isHidden    Boolean @default(false)
+  isPinned    Boolean @default(false)
+  isSystemMsg Boolean @default(false)
+
+  postedAsAlias String
+  postedAsMask  String
+  revealLevel   Int     @default(0)
+  revealName    String?
+
+  flags     Flag[]
+  reactions Reaction[]
+
+  @@index([roomId, createdAt])
+}
+
+model Flag {
+  id        String   @id @default(cuid())
+  messageId String
+  message   Message  @relation(fields: [messageId], references: [id], onDelete: Cascade)
+  flaggedBy String
+  flagger   Participant @relation(fields: [flaggedBy], references: [id], onDelete: Cascade)
+  reason    String
+  createdAt DateTime @default(now())
+
+  @@unique([messageId, flaggedBy])
+}
+
+model Reaction {
+  id            String   @id @default(cuid())
+  messageId     String
+  message       Message  @relation(fields: [messageId], references: [id], onDelete: Cascade)
+  participantId String
+  participant   Participant @relation(fields: [participantId], references: [id], onDelete: Cascade)
+  emoji         String
+
+  @@unique([messageId, participantId, emoji])
+}

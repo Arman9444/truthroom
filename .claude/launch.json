@@ -1,0 +1,23 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "TruthRoom Dev Server",
+      "runtimeExecutable": "C:\\Users\\mahy\\AppData\\Roaming\\fnm\\node-versions\\v22.22.1\\installation\\npx.cmd",
+      "runtimeArgs": ["next", "dev", "--turbopack"],
+      "port": 3000
+    },
+    {
+      "name": "Next.js Dev Server",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": ["run", "dev:next"],
+      "port": 3000
+    },
+    {
+      "name": "Prisma Studio",
+      "runtimeExecutable": "npx",
+      "runtimeArgs": ["prisma", "studio"],
+      "port": 5555
+    }
+  ]
+}

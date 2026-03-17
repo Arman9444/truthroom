@@ -38,6 +38,8 @@
   --color-popover: var(--popover);
   --color-card-foreground: var(--card-foreground);
   --color-card: var(--card);
+  --color-amber: var(--amber);
+  --color-amber-glow: var(--amber-glow);
   --radius-sm: calc(var(--radius) * 0.6);
   --radius-md: calc(var(--radius) * 0.8);
   --radius-lg: var(--radius);
@@ -72,6 +74,8 @@
   --chart-4: oklch(0.488 0.243 264.376);
   --chart-5: oklch(0.424 0.199 265.638);
   --radius: 0.625rem;
+  --amber: oklch(0.75 0.15 75);
+  --amber-glow: oklch(0.75 0.15 75 / 40%);
   --sidebar: oklch(0.985 0 0);
   --sidebar-foreground: oklch(0.145 0 0);
   --sidebar-primary: oklch(0.205 0 0);
@@ -83,37 +87,39 @@
 }
 
 .dark {
-  --background: oklch(0.145 0 0);
-  --foreground: oklch(0.985 0 0);
-  --card: oklch(0.205 0 0);
-  --card-foreground: oklch(0.985 0 0);
-  --popover: oklch(0.205 0 0);
-  --popover-foreground: oklch(0.985 0 0);
-  --primary: oklch(0.922 0 0);
-  --primary-foreground: oklch(0.205 0 0);
-  --secondary: oklch(0.269 0 0);
-  --secondary-foreground: oklch(0.985 0 0);
-  --muted: oklch(0.269 0 0);
-  --muted-foreground: oklch(0.708 0 0);
-  --accent: oklch(0.269 0 0);
-  --accent-foreground: oklch(0.985 0 0);
+  --background: oklch(0.13 0.005 60);
+  --foreground: oklch(0.93 0.01 75);
+  --card: oklch(0.17 0.007 60);
+  --card-foreground: oklch(0.93 0.01 75);
+  --popover: oklch(0.17 0.007 60);
+  --popover-foreground: oklch(0.93 0.01 75);
+  --primary: oklch(0.75 0.15 75);
+  --primary-foreground: oklch(0.13 0.005 60);
+  --secondary: oklch(0.22 0.01 60);
+  --secondary-foreground: oklch(0.88 0.03 75);
+  --muted: oklch(0.22 0.01 60);
+  --muted-foreground: oklch(0.65 0.03 70);
+  --accent: oklch(0.25 0.02 65);
+  --accent-foreground: oklch(0.88 0.03 75);
   --destructive: oklch(0.704 0.191 22.216);
-  --border: oklch(1 0 0 / 10%);
-  --input: oklch(1 0 0 / 15%);
-  --ring: oklch(0.556 0 0);
-  --chart-1: oklch(0.809 0.105 251.813);
-  --chart-2: oklch(0.623 0.214 259.815);
-  --chart-3: oklch(0.546 0.245 262.881);
-  --chart-4: oklch(0.488 0.243 264.376);
-  --chart-5: oklch(0.424 0.199 265.638);
-  --sidebar: oklch(0.205 0 0);
-  --sidebar-foreground: oklch(0.985 0 0);
-  --sidebar-primary: oklch(0.488 0.243 264.376);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.269 0 0);
-  --sidebar-accent-foreground: oklch(0.985 0 0);
-  --sidebar-border: oklch(1 0 0 / 10%);
-  --sidebar-ring: oklch(0.556 0 0);
+  --border: oklch(0.28 0.015 65);
+  --input: oklch(0.25 0.012 60);
+  --ring: oklch(0.75 0.15 75);
+  --chart-1: oklch(0.75 0.15 75);
+  --chart-2: oklch(0.65 0.12 60);
+  --chart-3: oklch(0.55 0.1 50);
+  --chart-4: oklch(0.45 0.08 45);
+  --chart-5: oklch(0.35 0.06 40);
+  --amber: oklch(0.75 0.15 75);
+  --amber-glow: oklch(0.75 0.15 75 / 40%);
+  --sidebar: oklch(0.15 0.005 60);
+  --sidebar-foreground: oklch(0.93 0.01 75);
+  --sidebar-primary: oklch(0.75 0.15 75);
+  --sidebar-primary-foreground: oklch(0.13 0.005 60);
+  --sidebar-accent: oklch(0.22 0.01 60);
+  --sidebar-accent-foreground: oklch(0.88 0.03 75);
+  --sidebar-border: oklch(0.28 0.015 65);
+  --sidebar-ring: oklch(0.75 0.15 75);
 }
 
 @layer base {
@@ -125,5 +131,65 @@
   }
   html {
     @apply font-sans;
+  }
+}
+
+/* Custom utility classes for TruthRoom */
+@layer utilities {
+  .glow-amber {
+    text-shadow: 0 0 20px var(--amber-glow), 0 0 40px var(--amber-glow), 0 0 80px oklch(0.75 0.15 75 / 20%);
+  }
+
+  .glow-amber-subtle {
+    text-shadow: 0 0 10px var(--amber-glow), 0 0 30px oklch(0.75 0.15 75 / 15%);
+  }
+
+  .glow-border {
+    box-shadow: 0 0 15px oklch(0.75 0.15 75 / 15%), inset 0 0 15px oklch(0.75 0.15 75 / 5%);
+  }
+
+  .animate-reveal {
+    animation: reveal 0.6s ease-out forwards;
+  }
+
+  .animate-pulse-glow {
+    animation: pulse-glow 3s ease-in-out infinite;
+  }
+
+  .animate-fade-in {
+    animation: fade-in 0.5s ease-out forwards;
+  }
+}
+
+@keyframes reveal {
+  0% {
+    opacity: 0;
+    filter: blur(12px);
+    transform: scale(0.95);
+  }
+  100% {
+    opacity: 1;
+    filter: blur(0);
+    transform: scale(1);
+  }
+}
+
+@keyframes pulse-glow {
+  0%, 100% {
+    text-shadow: 0 0 20px var(--amber-glow), 0 0 40px var(--amber-glow);
+  }
+  50% {
+    text-shadow: 0 0 30px var(--amber-glow), 0 0 60px var(--amber-glow), 0 0 90px oklch(0.75 0.15 75 / 15%);
+  }
+}
+
+@keyframes fade-in {
+  0% {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
   }
 }
