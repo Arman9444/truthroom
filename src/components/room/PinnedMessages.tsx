@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import { cn } from "@/lib/utils";
 import type { MessageInfo } from "@/types";
 
 interface PinnedMessagesProps {
@@ -15,32 +14,33 @@ export function PinnedMessages({ messages, participantId }: PinnedMessagesProps)
   if (messages.length === 0) return null;
 
   return (
-    <div className="border-b border-amber/15 bg-amber/5">
+    <div>
       <button
         onClick={() => setIsExpanded(!isExpanded)}
-        className="flex w-full items-center gap-2 px-4 py-2 text-xs text-amber/70 transition-colors hover:bg-amber/10"
+        className="flex items-center gap-2 w-full px-4 sm:px-6 py-2 bg-[#d4a847]/5 border-b border-[#d4a847]/10 cursor-pointer hover:bg-[#d4a847]/10 transition-colors"
       >
-        <span>📌</span>
-        <span className="font-medium">
-          {messages.length} pinned message{messages.length !== 1 ? "s" : ""}
+        <span>&#128204;</span>
+        <span className="text-xs font-medium text-[#d4a847]">Pinned</span>
+        <span className="text-[10px] bg-[#d4a847]/15 text-[#d4a847] px-1.5 py-0.5 rounded-full font-medium">
+          {messages.length}
         </span>
-        <span className="ml-auto">{isExpanded ? "▾" : "▸"}</span>
+        <span className="ml-auto text-xs text-[#d4a847]/50">
+          {isExpanded ? "\u25BE" : "\u25B8"}
+        </span>
       </button>
 
       {isExpanded && (
-        <div className="space-y-1 px-4 pb-3">
+        <div>
           {messages.map((msg) => (
             <div
               key={msg.id}
-              className="rounded-md bg-amber/5 px-3 py-2 text-sm"
+              className="px-4 sm:px-6 py-2 bg-[#d4a847]/[0.02] border-b border-[#d4a847]/5"
             >
-              <div className="flex items-center gap-1.5">
-                <span className="text-xs">{msg.postedAsMask}</span>
-                <span className="text-xs font-medium text-amber/80">
+              <p className="text-sm text-[#e8e4df]/70 truncate">
+                <span className="text-xs mr-1">{msg.postedAsMask}</span>
+                <span className="text-xs font-medium text-[#d4a847]/60 mr-1.5">
                   {msg.postedAsAlias}
                 </span>
-              </div>
-              <p className="mt-0.5 line-clamp-2 text-xs text-foreground/70">
                 {msg.text}
               </p>
             </div>

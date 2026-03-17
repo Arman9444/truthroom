@@ -1,42 +1,87 @@
 "use client";
 
-import { useState, useRef } from "react";
+import { useState, useRef, useCallback } from "react";
 import { useRouter } from "next/navigation";
-import {
-  Card,
-  CardHeader,
-  CardTitle,
-  CardDescription,
-  CardContent,
-} from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 
 export default function JoinRoomPage() {
   const router = useRouter();
-  const [code, setCode] = useState("");
+  const [code, setCode] = useState<string[]>(Array(6).fill(""));
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
-  const inputRef = useRef<HTMLInputElement>(null);
+  const inputRefs = [
+    useRef<HTMLInputElement>(null),
+    useRef<HTMLInputElement>(null),
+    useRef<HTMLInputElement>(null),
+    useRef<HTMLInputElement>(null),
+    useRef<HTMLInputElement>(null),
+    useRef<HTMLInputElement>(null),
+  ];
 
-  function handleCodeChange(e: React.ChangeEvent<HTMLInputElement>) {
-    const value = e.target.value
-      .toUpperCase()
-      .replace(/[^A-Z0-9]/g, "")
-      .slice(0, 6);
-    setCode(value);
-    setError("");
-  }
+  const fullCode = code.join("");
+
+  const handleChange = useCallback(
+    (index: number, value: string) => {
+      const char = value
+        .toUpperCase()
+        .replace(/[^A-Z0-9]/g, "")
+        .slice(-1);
+
+      setCode((prev) => {
+        const next = [...prev];
+        next[index] = char;
+        return next;
+      });
+      setError("");
+
+      if (char && index < 5) {
+        inputRefs[index + 1].current?.focus();
+      }
+    },
+    [inputRefs],
+  );
+
+  const handleKeyDown = useCallback(
+    (index: number, e: React.KeyboardEvent<HTMLInputElement>) => {
+      if (e.key === "Backspace" && !code[index] && index > 0) {
+        inputRefs[index - 1].current?.focus();
+      }
+    },
+    [code, inputRefs],
+  );
+
+  const handlePaste = useCallback(
+    (e: React.ClipboardEvent<HTMLInputElement>) => {
+      e.preventDefault();
+      const pasted = e.clipboardData
+        .getData("text")
+        .toUpperCase()
+        .replace(/[^A-Z0-9]/g, "")
+        .slice(0, 6);
+
+      if (pasted.length > 0) {
+        const next = Array(6).fill("");
+        for (let i = 0; i < pasted.length; i++) {
+          next[i] = pasted[i];
+        }
+        setCode(next);
+        setError("");
+
+        const focusIndex = Math.min(pasted.length, 5);
+        inputRefs[focusIndex].current?.focus();
+      }
+    },
+    [inputRefs],
+  );
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    if (code.length !== 6) return;
+    if (fullCode.length !== 6) return;
 
     setLoading(true);
     setError("");
 
     try {
-      const res = await fetch(`/api/rooms/${code}`);
+      const res = await fetch(`/api/rooms/${fullCode}`);
 
       if (res.status === 404) {
         setError("Room not found. Check the code and try again.");
@@ -57,62 +102,75 @@ export default function JoinRoomPage() {
         return;
       }
 
-      router.push(`/room/${code}`);
+      router.push(`/room/${fullCode}`);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Something went wrong");
       setLoading(false);
     }
   }
 
+  const boxClasses =
+    "w-12 h-14 sm:w-14 sm:h-16 text-center font-mono text-xl sm:text-2xl uppercase bg-[#0a0a0f] border border-white/10 rounded-lg focus:border-[#d4a847] focus:outline-none transition-colors text-[#e8e4df]";
+
   return (
-    <main className="min-h-screen flex items-center justify-center px-4 py-12">
+    <main className="min-h-screen flex flex-col items-center justify-center px-4 py-12">
       {/* Ambient glow */}
       <div className="pointer-events-none fixed inset-0 overflow-hidden">
-        <div className="absolute top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 h-[400px] w-[400px] rounded-full bg-amber/5 blur-[100px]" />
+        <div className="absolute top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 h-[600px] w-[600px] rounded-full bg-[#d4a847]/5 blur-[120px]" />
       </div>
 
-      <Card className="relative z-10 w-full max-w-sm border-border/50 bg-card/80 backdrop-blur-sm">
-        <CardHeader className="text-center">
-          <CardTitle className="text-2xl glow-amber-subtle">
-            Join a Room
-          </CardTitle>
-          <CardDescription>
-            Enter the 6-character room code to step inside.
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <form onSubmit={handleSubmit} className="space-y-6">
-            <div className="space-y-2">
-              <Input
-                ref={inputRef}
-                value={code}
-                onChange={handleCodeChange}
-                placeholder="ABCDEF"
-                maxLength={6}
-                autoFocus
-                className="text-center text-2xl font-mono tracking-[0.4em] h-14 uppercase placeholder:tracking-[0.4em] placeholder:text-muted-foreground/40"
-                aria-label="Room code"
+      {/* Card */}
+      <div className="relative z-10 w-full max-w-md glass rounded-2xl p-8 sm:p-10">
+        {/* Header */}
+        <div className="text-center mb-8">
+          <h1 className="font-serif text-3xl text-[#e8e4df]">Join a Room</h1>
+          <p className="text-[#6b6e7a] text-sm mt-2">
+            Enter the 6-character room code to join.
+          </p>
+        </div>
+
+        <form onSubmit={handleSubmit} className="space-y-6">
+          {/* OTP-style code inputs */}
+          <div className="flex justify-center gap-2 sm:gap-3">
+            {code.map((char, i) => (
+              <input
+                key={i}
+                ref={inputRefs[i]}
+                type="text"
+                inputMode="text"
+                maxLength={1}
+                pattern="[A-Za-z0-9]"
+                value={char}
+                onChange={(e) => handleChange(i, e.target.value)}
+                onKeyDown={(e) => handleKeyDown(i, e)}
+                onPaste={i === 0 ? handlePaste : undefined}
+                autoFocus={i === 0}
+                aria-label={`Character ${i + 1}`}
+                className={boxClasses}
               />
-              <p className="text-xs text-muted-foreground text-center">
-                {code.length}/6 characters
-              </p>
-            </div>
+            ))}
+          </div>
 
-            {error && (
-              <p className="text-sm text-destructive text-center">{error}</p>
-            )}
+          {/* Error */}
+          {error && (
+            <p className="text-sm text-[#c4604a] text-center">{error}</p>
+          )}
 
-            <Button
-              type="submit"
-              className="w-full text-base"
-              size="lg"
-              disabled={loading || code.length !== 6}
-            >
-              {loading ? "Joining..." : "Join Room"}
-            </Button>
-          </form>
-        </CardContent>
-      </Card>
+          {/* Submit */}
+          <button
+            type="submit"
+            disabled={loading || fullCode.length !== 6}
+            className="w-full bg-[#d4a847] text-[#0a0a0f] font-semibold rounded-lg py-3 text-base hover:bg-[#d4a847]/90 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            {loading ? "Joining..." : "Join Room"}
+          </button>
+        </form>
+      </div>
+
+      {/* Help text */}
+      <p className="text-xs text-[#6b6e7a]/60 mt-4 text-center relative z-10">
+        Don&apos;t have a code? Ask the room creator to share one.
+      </p>
     </main>
   );
 }

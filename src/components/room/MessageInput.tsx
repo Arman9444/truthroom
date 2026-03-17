@@ -1,8 +1,7 @@
 "use client";
 
 import { useState, useRef, useEffect, useCallback } from "react";
-import { Textarea } from "@/components/ui/textarea";
-import { Button } from "@/components/ui/button";
+import { Send } from "lucide-react";
 import { detectTargeting, getRandomPlaceholder } from "@/lib/moderation";
 import { cn } from "@/lib/utils";
 
@@ -41,6 +40,15 @@ export function MessageInput({
       if (cooldownIntervalRef.current) clearInterval(cooldownIntervalRef.current);
     };
   }, []);
+
+  // Auto-resize textarea
+  useEffect(() => {
+    const textarea = textareaRef.current;
+    if (textarea) {
+      textarea.style.height = "auto";
+      textarea.style.height = `${Math.min(textarea.scrollHeight, 120)}px`;
+    }
+  }, [text]);
 
   const startCooldown = useCallback(() => {
     if (slowMode <= 0) return;
@@ -117,61 +125,42 @@ export function MessageInput({
   };
 
   return (
-    <div className="border-t border-border/50 bg-card/80 backdrop-blur-sm">
-      {/* Typing indicator */}
-      {typingCount > 0 && (
-        <div className="px-4 py-1">
-          <p className="text-[11px] italic text-muted-foreground/50">
-            {typingCount === 1
-              ? "Someone is typing..."
-              : `${typingCount} people are typing...`}
-          </p>
-        </div>
-      )}
-
-      {/* Targeting warning */}
+    <div className="border-t border-white/[0.06] bg-[#14161d] px-4 sm:px-6 py-3">
+      {/* Anti-targeting warning */}
       {showTargetingWarning && (
-        <div className="mx-4 mt-2 rounded-md border border-yellow-500/30 bg-yellow-500/10 px-3 py-2">
-          <p className="text-xs text-yellow-400/90">
+        <div className="bg-[#c4604a]/10 border border-[#c4604a]/20 rounded-lg px-4 py-3 mb-3">
+          <p className="text-sm text-[#c4604a]">
             This sounds like it might be directed at a specific person. Anonymous
             spaces work best when sharing your own experience. Send anyway?
           </p>
-          <div className="mt-1.5 flex gap-2">
-            <Button
-              size="sm"
-              variant="ghost"
-              className="h-6 text-xs text-yellow-400/70 hover:text-yellow-400"
+          <div className="mt-2 flex gap-3">
+            <button
               onClick={handleSend}
+              className="text-xs font-medium text-[#c4604a] hover:text-[#c4604a]/80 cursor-pointer"
             >
               Send anyway
-            </Button>
-            <Button
-              size="sm"
-              variant="ghost"
-              className="h-6 text-xs text-muted-foreground/50"
-              onClick={() => {
-                setShowTargetingWarning(false);
-              }}
+            </button>
+            <button
+              onClick={() => setShowTargetingWarning(false)}
+              className="text-xs font-medium text-[#6b6e7a] hover:text-[#e8e4df] cursor-pointer"
             >
               Edit message
-            </Button>
+            </button>
           </div>
         </div>
       )}
 
       {/* Slow mode countdown */}
       {cooldownRemaining > 0 && (
-        <div className="px-4 py-1">
-          <p className="text-[11px] text-muted-foreground/50">
-            Slow mode: wait{" "}
-            <span className="font-mono text-amber/70">{cooldownRemaining}s</span>
-          </p>
-        </div>
+        <p className="text-xs text-[#6b8aab] mb-2">
+          Slow mode: wait{" "}
+          <span className="font-mono text-[#d4a847]/70">{cooldownRemaining}s</span>
+        </p>
       )}
 
       {/* Input area */}
-      <div className="flex items-end gap-2 p-3">
-        <Textarea
+      <div className="flex items-end gap-3">
+        <textarea
           ref={textareaRef}
           value={text}
           onChange={handleChange}
@@ -179,20 +168,30 @@ export function MessageInput({
           placeholder={placeholder}
           disabled={disabled || cooldownRemaining > 0}
           rows={1}
-          className={cn(
-            "max-h-32 min-h-[40px] flex-1 resize-none border-border/30 bg-secondary/50 text-sm",
-            "placeholder:text-muted-foreground/30 focus-visible:ring-amber/30"
-          )}
+          className="flex-1 bg-[#0a0a0f] border border-white/10 focus:border-[#d4a847]/50 rounded-xl px-4 py-3 text-sm text-[#e8e4df] placeholder:text-[#6b6e7a]/40 resize-none outline-none transition-colors min-h-[44px] max-h-[120px]"
         />
-        <Button
+        <button
           onClick={handleSend}
           disabled={isSendDisabled}
-          size="sm"
-          className="h-10 bg-amber px-4 text-primary-foreground hover:bg-amber/90 disabled:opacity-30"
+          className={cn(
+            "w-10 h-10 rounded-full bg-[#d4a847] text-[#0a0a0f] flex items-center justify-center transition-all hover:bg-[#d4a847]/90 disabled:opacity-30 cursor-pointer",
+            text.trim().length > 0
+              ? "opacity-100 scale-100"
+              : "opacity-0 scale-75 pointer-events-none"
+          )}
         >
-          Send
-        </Button>
+          <Send size={18} />
+        </button>
       </div>
+
+      {/* Typing indicator */}
+      {typingCount > 0 && (
+        <p className="text-xs text-[#6b6e7a]/50 italic mt-1">
+          {typingCount === 1
+            ? "Someone is typing..."
+            : `${typingCount} people are typing...`}
+        </p>
+      )}
     </div>
   );
 }

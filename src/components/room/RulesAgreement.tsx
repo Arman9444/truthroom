@@ -1,9 +1,6 @@
 "use client";
 
 import { ROOM_RULES } from "@/lib/moderation";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card";
-import { Separator } from "@/components/ui/separator";
 
 interface RulesAgreementProps {
   contentWarning?: string | null;
@@ -11,48 +8,47 @@ interface RulesAgreementProps {
 }
 
 export function RulesAgreement({ contentWarning, onAgree }: RulesAgreementProps) {
+  const rules = ROOM_RULES.split("\n\n");
+
   return (
-    <div className="flex min-h-screen items-center justify-center bg-background p-4">
-      <Card className="glow-border max-w-lg w-full border-amber/30 bg-card">
-        <CardHeader className="space-y-1 text-center">
-          <h2 className="glow-amber-subtle text-2xl font-semibold tracking-tight text-amber">
-            Before You Enter
-          </h2>
-        </CardHeader>
+    <div className="min-h-screen flex items-center justify-center px-4 bg-[#0a0a0f]">
+      <div className="glass rounded-2xl p-8 sm:p-10 max-w-lg w-full text-center">
+        <h2 className="font-serif text-2xl text-[#e8e4df] mb-2">
+          Before You Enter
+        </h2>
+        <p className="text-sm text-[#6b6e7a] mb-6">
+          Please review the room guidelines
+        </p>
 
-        <CardContent className="space-y-4">
-          {contentWarning && (
-            <>
-              <div className="rounded-md border border-destructive/50 bg-destructive/10 px-4 py-3">
-                <p className="text-sm font-medium text-destructive">
-                  Content Warning
-                </p>
-                <p className="mt-1 text-sm text-destructive/80">
-                  {contentWarning}
-                </p>
-              </div>
-              <Separator className="bg-border/50" />
-            </>
-          )}
+        {contentWarning && (
+          <div className="bg-[#c4604a]/10 border border-[#c4604a]/20 rounded-lg px-4 py-3 mb-6 text-left">
+            <p className="text-sm font-medium text-[#c4604a]">
+              Content Warning
+            </p>
+            <p className="mt-1 text-sm text-[#c4604a]/80">
+              {contentWarning}
+            </p>
+          </div>
+        )}
 
-          <div className="space-y-3 text-sm leading-relaxed text-muted-foreground">
-            {ROOM_RULES.split("\n\n").map((paragraph, i) => (
-              <p key={i} className="whitespace-pre-line">
+        <div className="text-left space-y-3 mb-8">
+          {rules.map((paragraph, i) => (
+            <div key={i} className="flex items-start gap-2.5">
+              <span className="text-[#d4a847] mt-0.5 text-sm shrink-0">&#10003;</span>
+              <p className="text-sm text-[#e8e4df]/80 whitespace-pre-line">
                 {paragraph}
               </p>
-            ))}
-          </div>
-        </CardContent>
+            </div>
+          ))}
+        </div>
 
-        <CardFooter>
-          <Button
-            onClick={onAgree}
-            className="w-full bg-amber text-primary-foreground hover:bg-amber/90"
-          >
-            I Agree &mdash; Enter the Room
-          </Button>
-        </CardFooter>
-      </Card>
+        <button
+          onClick={onAgree}
+          className="w-full bg-[#d4a847] text-[#0a0a0f] font-semibold rounded-lg py-3 text-base hover:bg-[#d4a847]/90 transition-colors"
+        >
+          I Agree &mdash; Enter the Room
+        </button>
+      </div>
     </div>
   );
 }

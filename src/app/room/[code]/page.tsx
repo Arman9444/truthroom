@@ -313,12 +313,12 @@ export default function RoomPage({ params }: PageProps) {
   // Loading state
   if (phase === "loading") {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-background">
+      <div className="flex min-h-screen items-center justify-center bg-[#0a0a0f]">
         <div className="text-center">
-          <div className="glow-amber animate-pulse-glow text-4xl">&#9679;</div>
-          <p className="mt-4 text-sm text-muted-foreground/50">
-            Entering the room...
-          </p>
+          <p className="font-serif text-3xl text-[#6b6e7a]/30">Candor</p>
+          <div className="mt-4 flex justify-center">
+            <span className="inline-block h-1.5 w-1.5 animate-pulse rounded-full bg-amber-500/60" />
+          </div>
         </div>
       </div>
     );
@@ -327,9 +327,9 @@ export default function RoomPage({ params }: PageProps) {
   // Error state
   if (phase === "error") {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-background">
-        <div className="text-center">
-          <p className="text-lg text-destructive">{error || "Something went wrong"}</p>
+      <div className="flex min-h-screen items-center justify-center bg-[#0a0a0f]">
+        <div className="rounded-2xl border border-white/10 bg-white/5 px-8 py-6 text-center backdrop-blur-md">
+          <p className="text-lg text-[#c4604a]">{error || "Something went wrong"}</p>
           <Button
             variant="ghost"
             className="mt-4 text-muted-foreground"
@@ -355,7 +355,7 @@ export default function RoomPage({ params }: PageProps) {
   // Joined phase - full room UI
   if (phase === "joined" && room && currentParticipant) {
     return (
-      <div className="flex h-screen flex-col bg-background">
+      <div className="flex h-screen flex-col bg-[#0a0a0f]">
         <RoomHeader
           room={room}
           participantCount={participants.filter((p) => p.isActive).length}
@@ -390,16 +390,14 @@ export default function RoomPage({ params }: PageProps) {
           />
         </div>
 
-        {/* Reveal button - floating in bottom-right area on desktop */}
+        {/* Reveal button - floating in bottom-right */}
         {room.allowReveal && (
-          <Button
-            variant="ghost"
-            size="sm"
-            className="fixed bottom-20 right-4 z-30 border border-amber/20 bg-card/90 text-xs text-amber/70 backdrop-blur-sm hover:bg-amber/10 hover:text-amber md:bottom-4 md:right-60"
+          <button
+            className="fixed bottom-4 right-4 z-30 rounded-lg border border-[#d4a847]/30 bg-transparent px-3 py-1.5 text-xs text-[#d4a847] transition-colors hover:bg-[#d4a847]/10"
             onClick={() => setRevealModalOpen(true)}
           >
             Reveal Identity
-          </Button>
+          </button>
         )}
 
         {/* Modals */}
@@ -422,7 +420,7 @@ export default function RoomPage({ params }: PageProps) {
 
         {/* Error toast */}
         {error && (
-          <div className="fixed bottom-4 left-4 z-50 rounded-md border border-destructive/30 bg-destructive/10 px-4 py-2 text-sm text-destructive shadow-lg">
+          <div className="fixed bottom-4 left-4 z-50 rounded-lg border border-[#c4604a]/20 bg-[#c4604a]/10 px-4 py-2 text-sm text-[#c4604a]">
             {error}
             <button
               className="ml-3 text-xs underline"

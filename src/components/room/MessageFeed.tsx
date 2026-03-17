@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useRef } from "react";
-import { ScrollArea } from "@/components/ui/scroll-area";
 import type { MessageInfo } from "@/types";
 import { MessageBubble } from "./MessageBubble";
 import { PinnedMessages } from "./PinnedMessages";
@@ -42,29 +41,35 @@ export function MessageFeed({
   }, []);
 
   return (
-    <ScrollArea className="flex-1">
-      <PinnedMessages messages={pinnedMessages} participantId={participantId} />
+    <div
+      className="flex-1 overflow-y-auto [scrollbar-width:thin] [scrollbar-color:#6b6e7a30_transparent] [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:bg-[#6b6e7a]/20 [&::-webkit-scrollbar-thumb]:rounded-full"
+    >
+      {pinnedMessages.length > 0 && (
+        <PinnedMessages messages={pinnedMessages} participantId={participantId} />
+      )}
 
-      <div ref={scrollRef} className="space-y-1 px-4 py-3">
+      <div ref={scrollRef} className="flex flex-col py-3">
         {chronologicalMessages.length === 0 ? (
-          <div className="flex h-40 items-center justify-center">
-            <p className="text-sm italic text-muted-foreground/40">
+          <div className="flex flex-col items-center justify-center h-full min-h-[240px]">
+            <span className="text-6xl text-[#6b6e7a]/10 font-serif select-none">&ldquo;</span>
+            <p className="text-[#6b6e7a] text-sm mt-2">
               The room is quiet. Be the first to share.
             </p>
           </div>
         ) : (
           chronologicalMessages.map((message) => (
-            <MessageBubble
-              key={message.id}
-              message={message}
-              isOwnMessage={message.participantId === participantId}
-              onFlag={onFlag}
-              onReact={onReact}
-            />
+            <div key={message.id} className="animate-slide-up">
+              <MessageBubble
+                message={message}
+                isOwnMessage={message.participantId === participantId}
+                onFlag={onFlag}
+                onReact={onReact}
+              />
+            </div>
           ))
         )}
         <div ref={bottomRef} />
       </div>
-    </ScrollArea>
+    </div>
   );
 }

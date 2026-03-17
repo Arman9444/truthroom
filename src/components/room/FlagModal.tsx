@@ -2,17 +2,6 @@
 
 import { useState } from "react";
 import { FLAG_REASONS } from "@/types";
-import { Button } from "@/components/ui/button";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
-import { Label } from "@/components/ui/label";
-import { cn } from "@/lib/utils";
 
 interface FlagModalProps {
   isOpen: boolean;
@@ -30,77 +19,64 @@ export function FlagModal({ isOpen, onClose, onSubmit }: FlagModalProps) {
     onClose();
   };
 
-  const handleOpenChange = (open: boolean) => {
-    if (!open) {
+  const handleBackdropClick = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (e.target === e.currentTarget) {
       setSelectedReason("");
       onClose();
     }
   };
 
-  return (
-    <Dialog open={isOpen} onOpenChange={handleOpenChange}>
-      <DialogContent className="border-border/30 bg-card sm:max-w-md">
-        <DialogHeader>
-          <DialogTitle className="text-foreground">Flag Message</DialogTitle>
-          <DialogDescription className="text-muted-foreground/70">
-            Why are you flagging this message? If enough people flag it, the
-            message will be hidden.
-          </DialogDescription>
-        </DialogHeader>
+  if (!isOpen) return null;
 
-        <div className="space-y-2 py-4">
+  return (
+    <div
+      className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center"
+      onClick={handleBackdropClick}
+    >
+      <div className="glass rounded-2xl p-6 sm:p-8 max-w-sm w-full mx-4">
+        <h2 className="text-lg font-semibold text-[#e8e4df] mb-1">
+          Flag Message
+        </h2>
+        <p className="text-sm text-[#6b6e7a] mb-5">
+          Why are you flagging this message? If enough people flag it, the
+          message will be hidden.
+        </p>
+
+        <div className="space-y-2">
           {FLAG_REASONS.map((reason) => (
-            <label
+            <button
               key={reason.value}
-              className={cn(
-                "flex cursor-pointer items-center gap-3 rounded-md border px-4 py-3 transition-colors",
+              onClick={() => setSelectedReason(reason.value)}
+              className={
                 selectedReason === reason.value
-                  ? "border-amber/40 bg-amber/10"
-                  : "border-border/30 bg-secondary/30 hover:bg-secondary/50"
-              )}
+                  ? "w-full text-left px-4 py-3 rounded-lg border border-[#c4604a]/40 bg-[#c4604a]/10 text-sm text-[#e8e4df] transition-colors"
+                  : "w-full text-left px-4 py-3 rounded-lg border border-white/[0.06] text-sm text-[#e8e4df] transition-colors hover:bg-white/[0.03]"
+              }
             >
-              <input
-                type="radio"
-                name="flag-reason"
-                value={reason.value}
-                checked={selectedReason === reason.value}
-                onChange={(e) => setSelectedReason(e.target.value)}
-                className="sr-only"
-              />
-              <div
-                className={cn(
-                  "flex h-4 w-4 shrink-0 items-center justify-center rounded-full border",
-                  selectedReason === reason.value
-                    ? "border-amber bg-amber"
-                    : "border-muted-foreground/30"
-                )}
-              >
-                {selectedReason === reason.value && (
-                  <div className="h-1.5 w-1.5 rounded-full bg-primary-foreground" />
-                )}
-              </div>
-              <span className="text-sm text-foreground/80">{reason.label}</span>
-            </label>
+              {reason.label}
+            </button>
           ))}
         </div>
 
-        <DialogFooter className="gap-2">
-          <Button
-            variant="ghost"
-            onClick={onClose}
-            className="text-muted-foreground"
+        <div className="flex gap-3 mt-6 justify-end">
+          <button
+            onClick={() => {
+              setSelectedReason("");
+              onClose();
+            }}
+            className="text-[#6b6e7a] hover:text-[#e8e4df] transition-colors text-sm"
           >
             Cancel
-          </Button>
-          <Button
+          </button>
+          <button
             onClick={handleSubmit}
             disabled={!selectedReason}
-            className="bg-destructive text-destructive-foreground hover:bg-destructive/90 disabled:opacity-30"
+            className="bg-[#c4604a] text-white px-4 py-2 rounded-lg text-sm font-medium disabled:opacity-40 transition-colors"
           >
             Submit Flag
-          </Button>
-        </DialogFooter>
-      </DialogContent>
-    </Dialog>
+          </button>
+        </div>
+      </div>
+    </div>
   );
 }

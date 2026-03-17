@@ -1,6 +1,5 @@
 "use client";
 
-import { cn } from "@/lib/utils";
 import { ALLOWED_REACTIONS } from "@/types";
 
 interface ReactionBarProps {
@@ -11,7 +10,7 @@ interface ReactionBarProps {
 
 export function ReactionBar({ reactions, userReactions, onReact }: ReactionBarProps) {
   return (
-    <div className="flex flex-wrap items-center gap-1">
+    <div className="flex flex-wrap gap-1.5">
       {ALLOWED_REACTIONS.map((emoji) => {
         const count = reactions[emoji] ?? 0;
         const isActive = userReactions.includes(emoji);
@@ -22,12 +21,11 @@ export function ReactionBar({ reactions, userReactions, onReact }: ReactionBarPr
           <button
             key={emoji}
             onClick={() => onReact(emoji)}
-            className={cn(
-              "inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs transition-colors",
+            className={
               isActive
-                ? "bg-amber/20 text-amber ring-1 ring-amber/40"
-                : "bg-secondary text-muted-foreground hover:bg-secondary/80"
-            )}
+                ? "flex items-center gap-1 px-2 py-1 rounded-full text-xs transition-colors cursor-pointer bg-[#d4a847]/15 text-[#d4a847] border border-[#d4a847]/30"
+                : "flex items-center gap-1 px-2 py-1 rounded-full text-xs transition-colors cursor-pointer bg-white/5 text-[#6b6e7a] hover:bg-white/10"
+            }
           >
             <span>{emoji}</span>
             <span>{count}</span>

@@ -2,17 +2,6 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import {
-  Card,
-  CardHeader,
-  CardTitle,
-  CardDescription,
-  CardContent,
-} from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
-import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import {
   Select,
@@ -21,6 +10,7 @@ import {
   SelectContent,
   SelectItem,
 } from "@/components/ui/select";
+import { Shield } from "lucide-react";
 
 export default function CreateRoomPage() {
   const router = useRouter();
@@ -80,168 +70,213 @@ export default function CreateRoomPage() {
     }
   }
 
+  const inputClasses =
+    "w-full bg-[#0a0a0f] border border-white/10 focus:border-[#d4a847] focus:outline-none transition-colors rounded-lg px-4 py-2.5 text-[#e8e4df] placeholder:text-[#6b6e7a]/40";
+  const labelClasses =
+    "block text-xs uppercase tracking-wider text-[#6b6e7a] font-medium mb-1.5";
+
   return (
-    <main className="min-h-screen flex items-center justify-center px-4 py-12">
+    <main className="min-h-screen flex flex-col items-center justify-center px-4 py-12">
       {/* Ambient glow */}
       <div className="pointer-events-none fixed inset-0 overflow-hidden">
-        <div className="absolute top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 h-[400px] w-[400px] rounded-full bg-amber/5 blur-[100px]" />
+        <div className="absolute top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 h-[600px] w-[600px] rounded-full bg-[#d4a847]/5 blur-[120px]" />
       </div>
 
-      <Card className="relative z-10 w-full max-w-lg border-border/50 bg-card/80 backdrop-blur-sm">
-        <CardHeader>
-          <CardTitle className="text-2xl glow-amber-subtle">
-            Create a Room
-          </CardTitle>
-          <CardDescription>
-            Set up a space for anonymous, honest conversation.
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <form onSubmit={handleSubmit} className="space-y-5">
-            {/* Room name */}
-            <div className="space-y-2">
-              <Label htmlFor="name">
-                Room Name <span className="text-destructive">*</span>
-              </Label>
-              <Input
+      {/* Header */}
+      <div className="relative z-10 text-center mb-8">
+        <h1 className="font-serif text-3xl sm:text-4xl text-[#e8e4df]">
+          Create a Room
+        </h1>
+        <p className="text-[#6b6e7a] text-sm mt-2">
+          Set up a space for honest conversation.
+        </p>
+      </div>
+
+      {/* Form card */}
+      <div className="relative z-10 w-full max-w-xl glass rounded-2xl p-8 sm:p-10">
+        <form onSubmit={handleSubmit} className="space-y-5">
+          {/* Section 1: Room Details */}
+          <div className="space-y-5">
+            <div>
+              <label htmlFor="name" className={labelClasses}>
+                Room Name <span className="text-[#c4604a]">*</span>
+              </label>
+              <input
                 id="name"
+                type="text"
                 placeholder="e.g. Team Retrospective"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
                 required
                 maxLength={80}
+                className={inputClasses}
               />
             </div>
 
-            {/* Topic */}
-            <div className="space-y-2">
-              <Label htmlFor="topic">Topic / Prompt</Label>
-              <Textarea
+            <div>
+              <label htmlFor="topic" className={labelClasses}>
+                Topic / Prompt
+              </label>
+              <textarea
                 id="topic"
                 placeholder="What should the room discuss? (optional)"
                 value={topic}
                 onChange={(e) => setTopic(e.target.value)}
                 rows={3}
                 maxLength={500}
+                className={`${inputClasses} resize-none`}
               />
             </div>
+          </div>
 
-            {/* Max participants */}
-            <div className="space-y-2">
-              <Label htmlFor="maxParticipants">Max Participants</Label>
-              <Input
-                id="maxParticipants"
-                type="number"
-                min={2}
-                max={100}
-                value={maxParticipants}
-                onChange={(e) => setMaxParticipants(Number(e.target.value))}
-              />
+          {/* Section 2: Room Settings */}
+          <div className="border-t border-white/5 pt-6 mt-6">
+            <p className="text-xs uppercase tracking-wider text-[#6b6e7a]/60 mb-5">
+              Room Settings
+            </p>
+
+            <div className="space-y-5">
+              <div>
+                <label htmlFor="maxParticipants" className={labelClasses}>
+                  Max Participants
+                </label>
+                <input
+                  id="maxParticipants"
+                  type="number"
+                  min={2}
+                  max={100}
+                  value={maxParticipants}
+                  onChange={(e) => setMaxParticipants(Number(e.target.value))}
+                  className={inputClasses}
+                />
+              </div>
+
+              <div>
+                <label htmlFor="slowMode" className={labelClasses}>
+                  Slow Mode (seconds)
+                </label>
+                <input
+                  id="slowMode"
+                  type="number"
+                  min={0}
+                  max={300}
+                  value={slowModeSeconds}
+                  onChange={(e) => setSlowModeSeconds(Number(e.target.value))}
+                  className={inputClasses}
+                />
+                <p className="text-xs text-[#6b6e7a]/60 mt-1.5">
+                  0 = no slow mode. Otherwise, seconds between messages per
+                  user.
+                </p>
+              </div>
+
+              <div>
+                <label className={labelClasses}>Room Expiry</label>
+                <Select
+                  value={expiry}
+                  onValueChange={(v) => v && setExpiry(v)}
+                >
+                  <SelectTrigger className="w-full bg-[#0a0a0f] border border-white/10 focus:border-[#d4a847] transition-colors rounded-lg">
+                    <SelectValue placeholder="Select expiry" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="1h">1 hour</SelectItem>
+                    <SelectItem value="24h">24 hours</SelectItem>
+                    <SelectItem value="7d">7 days</SelectItem>
+                    <SelectItem value="none">No expiry</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
             </div>
+          </div>
 
-            {/* Toggles */}
+          {/* Section 3: Safety & Privacy */}
+          <div className="border-t border-white/5 pt-6 mt-6">
+            <p className="text-xs uppercase tracking-wider text-[#6b6e7a]/60 mb-5">
+              Safety &amp; Privacy
+            </p>
+
             <div className="space-y-4">
               <div className="flex items-center justify-between">
                 <div className="space-y-0.5">
-                  <Label>Ephemeral Room</Label>
-                  <p className="text-xs text-muted-foreground">
+                  <p className="text-sm text-[#e8e4df]">Ephemeral Room</p>
+                  <p className="text-xs text-[#6b6e7a]">
                     Messages are deleted when the room closes
                   </p>
                 </div>
                 <Switch
                   checked={ephemeral}
                   onCheckedChange={setEphemeral}
+                  className="data-[state=checked]:bg-[#d4a847]"
                 />
               </div>
 
               <div className="flex items-center justify-between">
                 <div className="space-y-0.5">
-                  <Label>Allow Reveal</Label>
-                  <p className="text-xs text-muted-foreground">
+                  <p className="text-sm text-[#e8e4df]">Allow Reveal</p>
+                  <p className="text-xs text-[#6b6e7a]">
                     Participants can choose to unmask their identity
                   </p>
                 </div>
                 <Switch
                   checked={allowReveal}
                   onCheckedChange={setAllowReveal}
+                  className="data-[state=checked]:bg-[#d4a847]"
                 />
               </div>
 
               <div className="flex items-center justify-between">
                 <div className="space-y-0.5">
-                  <Label>Allow Replies</Label>
-                  <p className="text-xs text-muted-foreground">
+                  <p className="text-sm text-[#e8e4df]">Allow Replies</p>
+                  <p className="text-xs text-[#6b6e7a]">
                     Enable threaded replies to messages
                   </p>
                 </div>
                 <Switch
                   checked={allowReplies}
                   onCheckedChange={setAllowReplies}
+                  className="data-[state=checked]:bg-[#d4a847]"
+                />
+              </div>
+
+              <div className="pt-1">
+                <label htmlFor="cw" className={labelClasses}>
+                  Content Warning
+                </label>
+                <input
+                  id="cw"
+                  type="text"
+                  placeholder="e.g. Sensitive topics discussed (optional)"
+                  value={contentWarning}
+                  onChange={(e) => setContentWarning(e.target.value)}
+                  maxLength={200}
+                  className={inputClasses}
                 />
               </div>
             </div>
+          </div>
 
-            {/* Slow mode */}
-            <div className="space-y-2">
-              <Label htmlFor="slowMode">Slow Mode (seconds)</Label>
-              <Input
-                id="slowMode"
-                type="number"
-                min={0}
-                max={300}
-                value={slowModeSeconds}
-                onChange={(e) => setSlowModeSeconds(Number(e.target.value))}
-              />
-              <p className="text-xs text-muted-foreground">
-                0 = no slow mode. Otherwise, seconds between messages per user.
-              </p>
-            </div>
+          {/* Error */}
+          {error && (
+            <p className="text-sm text-[#c4604a]">{error}</p>
+          )}
 
-            {/* Content warning */}
-            <div className="space-y-2">
-              <Label htmlFor="cw">Content Warning</Label>
-              <Input
-                id="cw"
-                placeholder="e.g. Sensitive topics discussed (optional)"
-                value={contentWarning}
-                onChange={(e) => setContentWarning(e.target.value)}
-                maxLength={200}
-              />
-            </div>
+          {/* Submit */}
+          <button
+            type="submit"
+            disabled={loading || !name.trim()}
+            className="w-full bg-[#d4a847] text-[#0a0a0f] font-semibold rounded-lg py-3 text-base hover:bg-[#d4a847]/90 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            {loading ? "Creating..." : "Create Room"}
+          </button>
 
-            {/* Expiry */}
-            <div className="space-y-2">
-              <Label>Room Expiry</Label>
-              <Select value={expiry} onValueChange={(v) => v && setExpiry(v)}>
-                <SelectTrigger className="w-full">
-                  <SelectValue placeholder="Select expiry" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="1h">1 hour</SelectItem>
-                  <SelectItem value="24h">24 hours</SelectItem>
-                  <SelectItem value="7d">7 days</SelectItem>
-                  <SelectItem value="none">No expiry</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-
-            {/* Error */}
-            {error && (
-              <p className="text-sm text-destructive">{error}</p>
-            )}
-
-            {/* Submit */}
-            <Button
-              type="submit"
-              className="w-full text-base"
-              size="lg"
-              disabled={loading || !name.trim()}
-            >
-              {loading ? "Creating..." : "Create Room"}
-            </Button>
-          </form>
-        </CardContent>
-      </Card>
+          {/* Privacy note */}
+          <p className="flex items-center justify-center gap-1.5 text-xs text-[#6b6e7a]/60">
+            <Shield className="h-3.5 w-3.5" />
+            Your identity is never stored or shared.
+          </p>
+        </form>
+      </div>
     </main>
   );
 }

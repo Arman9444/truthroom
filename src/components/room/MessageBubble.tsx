@@ -3,15 +3,8 @@
 import { useState } from "react";
 import { cn } from "@/lib/utils";
 import { ALLOWED_REACTIONS, type MessageInfo } from "@/types";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
 import { ReactionBar } from "./ReactionBar";
+import { Flag } from "lucide-react";
 
 interface MessageBubbleProps {
   message: MessageInfo;
@@ -22,7 +15,15 @@ interface MessageBubbleProps {
 
 function formatTime(dateStr: string): string {
   const date = new Date(dateStr);
-  return date.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+  const now = new Date();
+  const diffMs = now.getTime() - date.getTime();
+  const diffMin = Math.floor(diffMs / 60000);
+  const diffHr = Math.floor(diffMin / 60);
+
+  if (diffMin < 1) return "just now";
+  if (diffMin < 60) return `${diffMin}m ago`;
+  if (diffHr < 24) return `${diffHr}h ago`;
+  return date.toLocaleDateString([], { month: "short", day: "numeric" });
 }
 
 export function MessageBubble({
@@ -34,11 +35,24 @@ export function MessageBubble({
   const [showHidden, setShowHidden] = useState(false);
   const [showActions, setShowActions] = useState(false);
 
+  // Reveal system messages — special treatment
+  if (message.isSystemMsg && message.revealLevel && message.revealLevel > 0) {
+    return (
+      <div className="animate-fade-in bg-[#d4a847]/5 border border-[#d4a847]/10 rounded-lg mx-4 sm:mx-6 py-2 px-4">
+        <p className="text-sm italic text-[#d4a847]/80 text-center">
+          &mdash; {message.text} &mdash;
+        </p>
+      </div>
+    );
+  }
+
   // System messages have distinct styling
   if (message.isSystemMsg) {
     return (
-      <div className="animate-fade-in py-2 text-center">
-        <p className="text-xs italic text-muted-foreground/70">{message.text}</p>
+      <div className="text-center py-2 px-4">
+        <p className="text-sm italic text-[#6b6e7a]">
+          &mdash; {message.text} &mdash;
+        </p>
       </div>
     );
   }
@@ -46,17 +60,44 @@ export function MessageBubble({
   // Hidden messages
   if (message.isHidden && !showHidden) {
     return (
-      <div className="animate-fade-in py-2">
-        <div className="rounded-lg border border-border/30 bg-secondary/30 px-4 py-3">
-          <p className="text-sm italic text-muted-foreground/50">
-            [This message was hidden by the community]
-          </p>
-          <button
-            onClick={() => setShowHidden(true)}
-            className="mt-1 text-xs text-muted-foreground/40 underline hover:text-muted-foreground/60"
+      <div
+        className={cn(
+          "group relative px-4 sm:px-6 py-3",
+          isOwnMessage && "border-l-2 border-[#d4a847]/40"
+        )}
+      >
+        {/* Header row */}
+        <div className="flex items-center gap-2 mb-1">
+          <span className="text-base" role="img" aria-label="mask">
+            {message.postedAsMask}
+          </span>
+          <span
+            className={cn(
+              "text-sm font-medium",
+              message.revealLevel > 0 ? "text-[#d4a847]" : "text-[#e8e4df]"
+            )}
           >
-            show anyway
-          </button>
+            {message.postedAsAlias}
+          </span>
+          <span className="ml-auto text-[10px] text-[#6b6e7a]/50">
+            {formatTime(message.createdAt)}
+          </span>
+        </div>
+
+        {/* Blurred text with overlay */}
+        <div className="relative">
+          <p className="text-sm text-[#e8e4df]/90 leading-relaxed whitespace-pre-wrap blur-sm">
+            {message.text}
+          </p>
+          <div className="absolute inset-0 flex items-center gap-2">
+            <span className="text-[#6b6e7a] text-xs">[Hidden by community]</span>
+            <button
+              onClick={() => setShowHidden(true)}
+              className="text-[#6b8aab] text-xs hover:underline cursor-pointer"
+            >
+              show anyway
+            </button>
+          </div>
         </div>
       </div>
     );
@@ -64,113 +105,92 @@ export function MessageBubble({
 
   return (
     <div
-      className="animate-fade-in group py-1"
+      className={cn(
+        "group relative px-4 sm:px-6 py-3 hover:bg-white/[0.02] transition-colors",
+        isOwnMessage && "border-l-2 border-[#d4a847]/40"
+      )}
       onMouseEnter={() => setShowActions(true)}
       onMouseLeave={() => setShowActions(false)}
     >
-      <div
-        className={cn(
-          "relative rounded-lg px-4 py-3 transition-colors",
-          isOwnMessage
-            ? "bg-amber/5 border border-amber/15"
-            : "bg-secondary/40 border border-transparent hover:border-border/20"
-        )}
-      >
-        {/* Pin indicator */}
-        {message.isPinned && (
-          <div className="absolute -top-1 right-2 text-xs text-amber/70">
-            <TooltipProvider>
-              <Tooltip>
-                <TooltipTrigger>
-                  <span className="cursor-default">📌</span>
-                </TooltipTrigger>
-                <TooltipContent>Pinned message</TooltipContent>
-              </Tooltip>
-            </TooltipProvider>
-          </div>
-        )}
-
-        {/* Header: mask, alias, reveal badge, timestamp */}
-        <div className="mb-1 flex items-center gap-2">
-          <span className="text-base" role="img" aria-label="mask">
-            {message.postedAsMask}
-          </span>
-          <span
-            className={cn(
-              "text-sm font-medium",
-              isOwnMessage ? "text-amber" : "text-foreground"
-            )}
-          >
-            {message.postedAsAlias}
-          </span>
-
-          {message.revealLevel > 0 && (
-            <Badge
-              variant="outline"
-              className="border-amber/30 bg-amber/10 text-[10px] text-amber"
-            >
-              {message.revealLevel === 3 && message.revealName
-                ? message.revealName
-                : message.revealLevel === 2
-                  ? "Partially revealed"
-                  : "Hint given"}
-            </Badge>
-          )}
-
-          <span className="ml-auto text-[10px] text-muted-foreground/50">
-            {formatTime(message.createdAt)}
-          </span>
-        </div>
-
-        {/* Message text */}
-        <p className="whitespace-pre-wrap text-sm leading-relaxed text-foreground/90">
-          {message.text}
-        </p>
-
-        {/* Reactions */}
-        {Object.keys(message.reactions).length > 0 && (
-          <div className="mt-2">
-            <ReactionBar
-              reactions={message.reactions}
-              userReactions={message.userReactions}
-              onReact={(emoji) => onReact(message.id, emoji)}
-            />
-          </div>
-        )}
-
-        {/* Hover actions */}
-        <div
+      {/* Header: mask, alias, reveal badge, pin, timestamp */}
+      <div className="flex items-center gap-2 mb-1">
+        <span className="text-base" role="img" aria-label="mask">
+          {message.postedAsMask}
+        </span>
+        <span
           className={cn(
-            "absolute -top-3 right-2 flex items-center gap-0.5 rounded-md border border-border/50 bg-card px-1 py-0.5 shadow-md transition-opacity",
-            showActions ? "opacity-100" : "pointer-events-none opacity-0"
+            "text-sm font-medium",
+            message.revealLevel > 0 ? "text-[#d4a847]" : "text-[#e8e4df]"
           )}
         >
-          {/* Reaction quick buttons */}
-          {ALLOWED_REACTIONS.map((emoji) => (
-            <button
-              key={emoji}
-              onClick={() => onReact(message.id, emoji)}
-              className="rounded p-1 text-xs transition-colors hover:bg-secondary"
-              title={`React with ${emoji}`}
-            >
-              {emoji}
-            </button>
-          ))}
+          {message.postedAsAlias}
+        </span>
 
-          {/* Flag button (don't show for own messages) */}
-          {!isOwnMessage && (
-            <>
-              <div className="mx-0.5 h-4 w-px bg-border/50" />
-              <button
-                onClick={() => onFlag(message.id)}
-                className="rounded p-1 text-xs text-muted-foreground/50 transition-colors hover:bg-destructive/10 hover:text-destructive"
-                title="Flag this message"
-              >
-                🚩
-              </button>
-            </>
-          )}
+        {message.revealLevel > 0 && (
+          <span className="text-[10px] text-[#d4a847]/60 bg-[#d4a847]/10 px-1.5 py-0.5 rounded">
+            {message.revealLevel === 3 && message.revealName
+              ? message.revealName
+              : message.revealLevel === 2
+                ? "Partially revealed"
+                : "Hint given"}
+          </span>
+        )}
+
+        {message.isPinned && <span className="text-xs">📌</span>}
+
+        <span className="ml-auto text-[10px] text-[#6b6e7a]/50">
+          {formatTime(message.createdAt)}
+        </span>
+      </div>
+
+      {/* Message text */}
+      <p className="text-sm text-[#e8e4df]/90 leading-relaxed whitespace-pre-wrap">
+        {message.text}
+      </p>
+
+      {/* Reactions */}
+      {Object.keys(message.reactions).length > 0 && (
+        <div className="mt-2">
+          <ReactionBar
+            reactions={message.reactions}
+            userReactions={message.userReactions}
+            onReact={(emoji) => onReact(message.id, emoji)}
+          />
         </div>
+      )}
+
+      {/* Hover actions bar */}
+      <div
+        className={cn(
+          "absolute -top-3 right-4 flex gap-0.5 bg-[#14161d] border border-white/[0.06] rounded-lg px-1 py-0.5 shadow-lg transition-opacity",
+          showActions ? "opacity-100" : "pointer-events-none opacity-0"
+        )}
+      >
+        {/* Reaction quick buttons */}
+        {ALLOWED_REACTIONS.map((emoji) => (
+          <button
+            key={emoji}
+            onClick={() => onReact(message.id, emoji)}
+            className="text-xs hover:bg-white/5 rounded p-1 cursor-pointer"
+            title={`React with ${emoji}`}
+          >
+            {emoji}
+          </button>
+        ))}
+
+        {/* Flag button (don't show for own messages) */}
+        {!isOwnMessage && (
+          <>
+            <div className="mx-0.5 h-4 w-px bg-white/[0.06]" />
+            <button
+              onClick={() => onFlag(message.id)}
+              className="rounded p-1 text-[#6b6e7a] hover:text-[#c4604a] cursor-pointer transition-colors"
+              title="Flag this message"
+            >
+              <Flag size={12} />
+            </button>
+          </>
+        )}
       </div>
     </div>
   );
