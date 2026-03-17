@@ -296,7 +296,7 @@ export default function RoomPage({ params }: PageProps) {
         setError(err instanceof Error ? err.message : "Failed to reveal");
       }
     },
-    [code, fetchParticipants]
+    [code, currentParticipant, fetchParticipants]
   );
 
   // Typing indicator stubs (will connect to Socket.IO later)
