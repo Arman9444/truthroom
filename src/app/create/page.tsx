@@ -52,12 +52,12 @@ export default function CreateRoomPage() {
           name: name.trim(),
           topic: topic.trim() || null,
           maxParticipants,
-          ephemeral,
+          isEphemeral: ephemeral,
           allowReveal,
           allowReplies,
-          slowModeSeconds,
+          slowMode: slowModeSeconds,
           contentWarning: contentWarning.trim() || null,
-          expiry,
+          expiresIn: expiry === "none" ? null : expiry,
         }),
       });
 
