@@ -14,7 +14,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "TruthRoom - Anonymous Group Sharing",
+  title: "Candor - Anonymous Group Sharing",
   description:
     "Where anonymity enables honesty. Create or join anonymous rooms for open, honest group conversations.",
 };

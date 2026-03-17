@@ -41,7 +41,7 @@ export default function HomePage() {
       {/* Hero */}
       <section className="relative z-10 flex flex-col items-center text-center max-w-2xl mx-auto mb-20 animate-fade-in">
         <h1 className="text-6xl sm:text-7xl font-bold tracking-tight glow-amber animate-pulse-glow mb-4">
-          TruthRoom
+          Candor
         </h1>
         <p className="text-xl sm:text-2xl text-muted-foreground mb-3">
           Where anonymity enables honesty

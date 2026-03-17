@@ -101,7 +101,7 @@ export default function ManageRoomPage({ params }: { params: Promise<{ code: str
       const url = URL.createObjectURL(blob);
       const a = document.createElement("a");
       a.href = url;
-      a.download = `truthroom-${code}-transcript.txt`;
+      a.download = `candor-${code}-transcript.txt`;
       a.click();
       URL.revokeObjectURL(url);
     } catch {
